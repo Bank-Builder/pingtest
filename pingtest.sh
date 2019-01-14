@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (c) 2018, Andrew Turpin
+# License MIT: https://opensource.org/licenses/MIT
+
 _version="0.1"
 
 function displayHelp(){
@@ -26,45 +29,43 @@ function displayHelp(){
 function displayVersion(){
  echo "pingtest (bank-builder utils) version $_version";
  echo "Copyright (C) 2018, Andrew Turpin";
- echo "License MIT: < https://opensource.org/licenses/MIT >.";
+ echo "License MIT: https://opensource.org/licenses/MIT";
  echo "";
 }
 
 function ProgressBar {
-# Progress bar normalises to percentage $1/$2
-# Source for this fuction coutesy of internet 
+# $1 = progress_number
+# $2 = total
+# Note: source code for this fuction coutesy of internet 
     let _progress=(${1}*100/${2}*100)/100
     let _done=(${_progress}*4)/10
     let _left=40-$_done
-# Build progressbar string lengths
+    # Build progressbar string lengths
     _fill=$(printf "%${_done}s")
     _empty=$(printf "%${_left}s")
     printf "\rProgress : [${_fill// /\#}${_empty// /-}] ${_progress}%%"
 }
 
 function pTest(){
-    ip="$1"
-    dn="$2"
-    markdown="$3"
-    if [ $dn"" = "" ]; then dn=$ip; fi;
+    ip="$1";
+    dn="$2";
+    md="$3";
+    if [ -z $dn ]; then dn=$ip; fi;
     ping $ip -c 1 -w 4 &> /dev/null 
     if [ $? -ne 0 ]; then
-        curl  $ip -k --max-time 5 &> /dev/null ;
-            if [ $? -ne 0 ]; then
-                ret="$dn curl and ping failed";
-            else
-                ret="$dn curl instead of ping passed";
-            fi
-        else
-            ret="$dn ping passed";
-    fi
-    if [ "$markdown" = "1" ]
-    then 
-        ret=${ret//passed/**passed**};
-        ret=${ret//failed/**failed**};
+        curl  $ip -k --max-time 5 &> /dev/null
+        if [ $? -ne 0 ]; then ret="$dn curl and ping failed";
+        else ret="$dn curl instead of ping passed"; fi;
+    else
+        ret="$dn ping passed";
+    fi;
+    
+    if [ "$md" = "1" ]; then 
+        ret=${ret//passed/**passed**}
+        ret=${ret//failed/**failed**}
         ret="* $ret"
     fi;
-    echo $ret
+    printf "${ret}"
 }
 
 function pTestFile(){
@@ -101,23 +102,23 @@ _verbose="0"
 _markdown="0"
 while [[ "$#" > 0 ]]; do
     case $1 in
-        -f|--file) 
-            _pingfile=$2;
-            shift;;
-        -v|--verbose) 
-            _verbose="1";
-            ;;
-        -m|--markdown) 
-            _markdown="1";
-            ;;            
-        -s|--server) 
-            pTest $2;
-            exit 0;
-            ;;
         --help) 
             displayHelp; exit 0;;
         --version) 
             displayVersion; exit 0;;
+        -f|--file) 
+            _pingfile="$2";
+            shift;;
+        -v|--verbose) 
+            _verbose="1"
+            ;;
+        -m|--markdown) 
+            _markdown="1"
+            ;;            
+        -s|--server) 
+            _pingserver="$2";
+            shift;
+            ;;
         *) echo "Unknown parameter passed: $1"; exit 1;;
     esac; 
     shift; 
@@ -131,7 +132,15 @@ if [ "$_verbose" = "1" ]; then
     echo -e $_title
 fi
 
+if [ -n "$_pingserver" ]
+then 
+    echo -e $(pTest $_pingserver)
+    exit 0
+fi;
+
 if [ -n "$_pingfile" ]; then pTestFile $_pingfile $_verbose $_markdown;exit 0; fi;
+
+
 
 echo "Try pingtest --help for help";
 
