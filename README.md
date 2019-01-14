@@ -16,6 +16,9 @@ Usage pingtest [OPTION]... [FILE]
         --help      display this help and exit
         --version   display version and exit
 
-  EXAMPLE:
+  EXAMPLE(s):
       pingtest -f [ipfile]
+      pingtest --server my-aws-server.com:8443
 </pre>
+
+An example [ipfile] called pingtest.list is included.
