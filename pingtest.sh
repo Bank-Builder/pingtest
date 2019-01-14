@@ -5,7 +5,7 @@ function displayHelp(){
  echo "   Tries to ping a list of ip's or url's provided in a file or at command line";
  echo "   and if ICMP packets are blocked (ping fails) the program will attempt";
  echo "   to connect via http/s at the port specified";
- echo "":
+ echo " ";
  echo "  OPTIONS:";
  echo "    -d, --delpoy    the file to deploy";
  echo "    -f, --file      supply file name with ip's or urls to test";
