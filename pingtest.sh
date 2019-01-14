@@ -7,7 +7,6 @@ function displayHelp(){
  echo "   to connect via http/s at the port specified";
  echo " ";
  echo "  OPTIONS:";
- echo "    -d, --delpoy    the file to deploy";
  echo "    -f, --file      supply file name with ip's or urls to test";
  echo "                    the file format is [server-display-name] | ip/url:port and";
  echo "                    if ping is blocked (e.g. AWS) then the test will try curl. ";
@@ -15,13 +14,14 @@ function displayHelp(){
  echo "        --help      display this help and exit";
  echo "        --version   display version and exit";
  echo "";
- echo "  EXAMPLE:";
- echo "      pingtest -f [ipfile] -u true";
+ echo "  EXAMPLE(s):";
+ echo "      pingtest -f [ipfile]";
+ echo "      pingtest --server [server-ip/url:port]";
  echo "";
 }
 
 function displayVersion(){
- echo "pingtest (bank-builder utils) version 1.01";
+ echo "pingtest (bank-builder utils) version 0.1";
  echo "Copyright (C) 2018, Andrew Turpin";
  echo "License MIT: < https://opensource.org/licenses/MIT >.";
  echo "";

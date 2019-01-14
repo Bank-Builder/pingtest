@@ -1,4 +1,4 @@
-# pingtest
+# pingtest version 0.1
 <pre>
 Usage pingtest [OPTION]... [FILE]
    Tries to ping a list of ip's or url's provided in a file or at command line
