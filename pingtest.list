@@ -1,5 +1,5 @@
-google|8.8.8.8
 Github|github.com
-Some Resource|10.33.100.13
+Some Gateway|10.0.0.2
 Local Printer|10.1.224.44
 AWS server (no ping allowed)|myawsserver.net:8080
+google|8.8.8.8

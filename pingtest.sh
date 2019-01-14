@@ -1,4 +1,5 @@
 #!/bin/bash
+_version="0.1"
 
 function displayHelp(){
  echo "Usage pingtest [OPTION]... [FILE]";
@@ -10,7 +11,9 @@ function displayHelp(){
  echo "    -f, --file      supply file name with ip's or urls to test";
  echo "                    the file format is [server-display-name] | ip/url:port and";
  echo "                    if ping is blocked (e.g. AWS) then the test will try curl. ";
- echo "    -s, --server    www.my-aws-server.com:8443";
+ echo "    -v, --verbose   display vebose details and progress bar.  Works with -f option only.";
+ echo "    -m, --markdown  formats the output in markdown.  Works with -v option only.";
+ echo "    -s, --server    pings a single server given in form [server-ip/url:port]";
  echo "        --help      display this help and exit";
  echo "        --version   display version and exit";
  echo "";
@@ -21,59 +24,96 @@ function displayHelp(){
 }
 
 function displayVersion(){
- echo "pingtest (bank-builder utils) version 0.1";
+ echo "pingtest (bank-builder utils) version $_version";
  echo "Copyright (C) 2018, Andrew Turpin";
  echo "License MIT: < https://opensource.org/licenses/MIT >.";
  echo "";
 }
 
+function ProgressBar {
+# Progress bar normalises to percentage $1/$2
+# Source for this fuction coutesy of internet 
+    let _progress=(${1}*100/${2}*100)/100
+    let _done=(${_progress}*4)/10
+    let _left=40-$_done
+# Build progressbar string lengths
+    _fill=$(printf "%${_done}s")
+    _empty=$(printf "%${_left}s")
+    printf "\rProgress : [${_fill// /\#}${_empty// /-}] ${_progress}%%"
+}
+
 function pTest(){
     ip="$1"
     dn="$2"
+    markdown="$3"
     if [ $dn"" = "" ]; then dn=$ip; fi;
     ping $ip -c 1 -w 4 &> /dev/null 
     if [ $? -ne 0 ]; then
         curl  $ip -k --max-time 5 &> /dev/null ;
-        if [ $? -ne 0 ]; then
-            echo *$dn curl and ping failed*;
+            if [ $? -ne 0 ]; then
+                ret="$dn curl and ping failed";
+            else
+                ret="$dn curl instead of ping passed";
+            fi
         else
-            echo $dn curl instead of ping passed;
-        fi
-        else
-
-        echo $dn ping passed;
+            ret="$dn ping passed";
     fi
+    if [ "$markdown" = "1" ]
+    then 
+        ret=${ret//passed/**passed**};
+        ret=${ret//failed/**failed**};
+        ret="* $ret"
+    fi;
+    echo $ret
 }
 
 function pTestFile(){
-IPLIST="$1"
-IFS=$'\n'
-x=`cat $IPLIST | wc -l`
-for iprow in $(cat $IPLIST)
+    IPLIST="$1"
+    verbose="$2"
+    markdown="$3"
 
-do
-    ip=$( echo "$iprow" |cut -d'|' -f2 );
-    dn=$( echo "$iprow" |cut -d'|' -f1 );
-    pTest $ip $dn;
-done
+    IFS=$'\n'
+    total=`cat $IPLIST | wc -l`
+    number=1
 
-echo $x destinations tested...
+    for iprow in $(cat $IPLIST)
+    do
+        ip=$( echo "$iprow" |cut -d'|' -f2 );
+        dn=$( echo "$iprow" |cut -d'|' -f1 );
+        
+        if [ "$verbose" = "1" ]; then result_line=$(pTest $ip $dn $markdown);
+        else result_line=$(pTest $ip $dn);fi;
+        
+        result="$result$result_line\n"
+        if [ "$verbose" = "1" ]; then ProgressBar ${number} ${total};
+            let number=number+1;
+        fi;
+    done
+
+    printf "\r                                                           \r"
+    echo -e $result
+    if [ "$verbose" = "1" ]; then echo "$total destinations tested..."; fi;
 }
 
 
-# Main 
-help=0;
-ver=0;
-while [[ "$#" > 0 ]]; do 
+# PingTest Main
+_verbose="0"
+_markdown="0"
+while [[ "$#" > 0 ]]; do
     case $1 in
         -f|--file) 
-            pTestFile $2;
-            exit 0;
+            _pingfile=$2;
             shift;;
-         -s|--server) 
+        -v|--verbose) 
+            _verbose="1";
+            ;;
+        -m|--markdown) 
+            _markdown="1";
+            ;;            
+        -s|--server) 
             pTest $2;
             exit 0;
-            shift;;
+            ;;
         --help) 
             displayHelp; exit 0;;
         --version) 
@@ -82,6 +122,16 @@ while [[ "$#" > 0 ]]; do
     esac; 
     shift; 
 done
+
+if [ "$_verbose" = "1" ]; then 
+    _title="pingtest ver $_version";
+    if [ "$_markdown" = "1" ]; then _title="# $_title";
+    else _title="$_title\n======================";
+    fi;
+    echo -e $_title
+fi
+
+if [ -n "$_pingfile" ]; then pTestFile $_pingfile $_verbose $_markdown;exit 0; fi;
 
 echo "Try pingtest --help for help";
 
