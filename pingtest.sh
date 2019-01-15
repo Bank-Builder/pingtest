@@ -34,9 +34,9 @@ function displayVersion(){
 }
 
 function ProgressBar {
-# $1 = progress_number
-# $2 = total
-# Note: source code for this fuction coutesy of internet 
+# $1 = progress_number, $2 = total
+# Author: Teddy Skarin, licensed under The Unlicense, https://github.com/fearside/ProgressBar/
+
     let _progress=(${1}*100/${2}*100)/100
     let _done=(${_progress}*4)/10
     let _left=40-$_done
