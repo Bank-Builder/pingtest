@@ -22,3 +22,32 @@ Usage pingtest [OPTION]... [FILE]
 </pre>
 
 An example [ipfile] called pingtest.list is included.
+
+This is what the sample output may look like using the included example [pingtest.list](./pingtest.list) file:
+<pre>
+ :~$./pingtest.sh --file pingtest.list -v -m
+# pingtest ver 0.1
+* Github ping **passed**                                   
+* Some Gateway curl and ping **failed**
+* Local Printer curl and ping **failed**
+* AWS server (no ping allowed) curl and ping **failed**
+* google ping **passed**
+
+5 destinations tested...
+
+</pre>
+and the because the -m (markdown) flag was used the output renders as:
+
+# pingtest ver 0.1
+* Github ping **passed**                                   
+* Some Gateway curl and ping **failed**
+* Local Printer curl and ping **failed**
+* AWS server (no ping allowed) curl and ping **failed**
+* google ping **passed**
+
+5 destinations tested...
+
+
+
+
+
