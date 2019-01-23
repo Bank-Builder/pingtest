@@ -61,7 +61,8 @@ function pTest(){
     fi;
     
     if [ "$md" = "1" ]; then 
-        ret=${ret//passed/**passed**}
+        # Decided to only bold failed and not success
+        # ret=${ret//passed/**passed**}
         ret=${ret//failed/**failed**}
         ret="* $ret"
     fi;
