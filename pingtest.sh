@@ -17,6 +17,8 @@ function displayHelp(){
  echo "    -v, --verbose   display vebose details and progress bar.  Works with -f option only.";
  echo "    -m, --markdown  formats the output in markdown.  Works with -v option only.";
  echo "    -s, --server    pings a single server given in form [server-ip/url:port]";
+ echo "    -e, --email     send an on-error notification email to [email@address]";
+ echo "        --settings  display SMTP settings and exits";
  echo "        --help      display this help and exit";
  echo "        --version   display version and exit";
  echo "";
@@ -28,9 +30,27 @@ function displayHelp(){
 
 function displayVersion(){
  echo "pingtest (bank-builder utils) version $_version";
- echo "Copyright (C) 2018, Andrew Turpin";
+ echo "Copyright (C) 2018-2021, Bank Builder";
  echo "License MIT: https://opensource.org/licenses/MIT";
  echo "";
+}
+
+function displaySMTPSettings(){
+ echo "pingtest (bank-builder utils) SMTP settings";
+ echo "================================================";
+ echo "SMTP_SERVER="$SMTP_SERVER
+ echo "SMTP_TIMEOUT"$SMTP_TIMEOUT" (default is 15 seconds)"
+ echo "SMTP_FROM_EMAIL="$SMTP_FROM_EMAIL
+ echo "SMTP_PORT="$SMTP_PORT
+ echo "SMTP_USERNAME="$SMTP_USERNAME
+ echo "SMTP_ENCRYPTION_METHOD="$SMTP_ENCTYPRION_METHOD" (Options are ENCFORCE_TLS | TLS | NONE)"
+#export SMTP_USEAUTHENTICATION=true
+ echo "SMTP_USESSL="$SMTP_USESSL" (Default is True)"
+ echo "SMTP_PASSWORD="
+ echo "SMTP_FROM_NAME="$SMTP_FROM_NAME
+ echo "================================================";
+ echo "In order to use the --email option to send error notifications";
+ echo "the environment variables above need to be correctly set.";
 }
 
 function ProgressBar {
@@ -107,12 +127,17 @@ while [[ "$#" > 0 ]]; do
             displayHelp; exit 0;;
         --version) 
             displayVersion; exit 0;;
+        --settings) 
+            displaySMTPSettings; exit 0;;            
         -f|--file) 
             _pingfile="$2";
             shift;;
         -v|--verbose) 
             _verbose="1"
             ;;
+        -e|--email) 
+            _sendto="$2"
+            ;;               
         -m|--markdown) 
             _markdown="1"
             ;;            
