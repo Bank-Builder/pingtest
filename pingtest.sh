@@ -26,6 +26,7 @@ function displayHelp(){
  echo "  EXAMPLE(s):";
  echo "      pingtest -f [ipfile]";
  echo "      pingtest --server [server-ip/url:port]";
+ echo "      pingtest -f [ipfile] --email support@domain.com -q";
  echo "";
 }
 
@@ -37,7 +38,7 @@ function displayVersion(){
 }
 
 function displaySMTPSettings(){
- echo "pingtest (bank-builder utils) SMTP settings";
+ echo "pingtest $_version SMTP settings";
  echo "================================================";
  echo "SMTP_SERVER="$SMTP_SERVER;
  echo "SMTP_TIMEOUT"$SMTP_TIMEOUT" (default is 15 seconds)";
