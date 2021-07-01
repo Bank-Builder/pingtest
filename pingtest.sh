@@ -73,7 +73,7 @@ function sendEmail {
 # $2 domainname of failed test
 # Assumes environment variables
 toAddress=$1
-domain=$2
+body=$2
 err=$(curl --max-time $SMTP_TIMEOUT --url 'smtp://'$SMTP_SERVER':'$SMTP_PORT --ssl-reqd   --mail-from $SMTP_FROM_EMAIL   --mail-rcpt $toAddress   --user $SMTP_USERNAME':'$SMTP_PASSWORD   -T <(echo -e 'From: '$SMTP_FROM_EMAIL'\nTo: '$toAddress'\nSubject: Pingtest Failure\n\n'$body) > /dev/null 2>&1 )
 if [[ err -ne 0 ]]; then
     echo "Sending email failed"
