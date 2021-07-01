@@ -71,19 +71,37 @@ You will need to configure environmental variables either in your CI/CD pipeline
 pingtest ver 0.2 SMTP settings
 ================================================
 SMTP_SERVER=smtp.office365.com
-SMTP_TIMEOUT15 (default is 15 seconds)
-SMTP_FROM_EMAIL=info@attica.tech
+SMTP_TIMEOUT=15 (default is 15 seconds)
+SMTP_FROM_EMAIL=info@domain.com
 SMTP_PORT=587
-SMTP_USERNAME=info@attica.tech
+SMTP_USERNAME=info@domain.com
 SMTP_ENCRYPTION_METHOD= (Options are ENFORCE_TLS | TLS | NONE)
 SMTP_USESSL=true (Default is true)
 SMTP_PASSWORD=
-SMTP_FROM_NAME=Attica
+SMTP_FROM_NAME=Info
 ================================================
 In order to use the --email option to send error notifications
 the environment variables above need to be correctly set.
 ```
 > Note: `pingtest` will never display the password field for security reasons.
+
+This will send an email that look similar to the following:
+```
+From: Info <info@domain.com>
+Sent: 01 July 2021 16:07
+To: "Support" <support@domain.com>
+Subject: Pingtest Failure
+ 
+-----------------------
+
+Ping Test Failed to: Local Printer
+Ping Test Failed to: AWS server (no ping allowed)
+
+Regards,
+Pingtest ver 0.2
+-----------------------
+```
+
 
 ## Setting up a systemd timer to run pingtest
 One possible use case for pingtest is to run a systemd timer service to periodically (every 5 minutes) run ping tests.

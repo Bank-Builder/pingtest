@@ -41,7 +41,7 @@ function displaySMTPSettings(){
  echo "pingtest $_version SMTP settings";
  echo "================================================";
  echo "SMTP_SERVER="$SMTP_SERVER;
- echo "SMTP_TIMEOUT"$SMTP_TIMEOUT" (default is 15 seconds)";
+ echo "SMTP_TIMEOUT="$SMTP_TIMEOUT" (default is 15 seconds)";
  echo "SMTP_FROM_EMAIL="$SMTP_FROM_EMAIL;
  echo "SMTP_PORT="$SMTP_PORT;
  echo "SMTP_USERNAME="$SMTP_USERNAME;
@@ -74,7 +74,7 @@ function sendEmail {
 # Assumes environment variables
 toAddress=$1
 domain=$2
-err=$(curl --max-time $SMTP_TIMEOUT --url 'smtp://'$SMTP_SERVER':'$SMTP_PORT --ssl-reqd   --mail-from $SMTP_FROM_EMAIL   --mail-rcpt $toAddress   --user $SMTP_USERNAME':'$SMTP_PASSWORD   -T <(echo -e 'From: '$SMTP_FROM_EMAIL'\nTo: andrew@turpin.co.za\nSubject: Pingtest Failure\n\nPingtest failed for '$domain'\nSent by '$SMTP_FROM_NAME'\n---------------') > /dev/null 2>&1 )
+err=$(curl --max-time $SMTP_TIMEOUT --url 'smtp://'$SMTP_SERVER':'$SMTP_PORT --ssl-reqd   --mail-from $SMTP_FROM_EMAIL   --mail-rcpt $toAddress   --user $SMTP_USERNAME':'$SMTP_PASSWORD   -T <(echo -e 'From: '$SMTP_FROM_EMAIL'\nTo: '$toAddress'\nSubject: Pingtest Failure\n\n'$body) > /dev/null 2>&1 )
 if [[ err -ne 0 ]]; then
     echo "Sending email failed"
 fi
@@ -114,6 +114,7 @@ function pTestFile(){
     total=`cat $IPLIST | wc -l`
     number=1
     result="\n"
+    body=""
     for iprow in $(cat $IPLIST)
     do
         ip=$( echo "$iprow" |cut -d'|' -f2 );
@@ -127,7 +128,9 @@ function pTestFile(){
         fi;
 
         if [[ "$( echo $result_line |grep failed )" != "" ]]; then 
-            if [[ "$sendto" != "NONE" ]]; then sendEmail ${sendto} ${dn};fi;
+            if [[ "$sendto" != "NONE" ]]; then 
+                body=$body"\nPing Test Failed to: "$dn;
+            fi;
         fi;
         
         result="$result$result_line\n"
@@ -136,6 +139,10 @@ function pTestFile(){
         fi;
         
     done
+    if [[ "$body" != "" ]]; then 
+        body="-----------------------\n"$body"\n\nRegards,\nPingtest ver "$_version"\n-----------------------\n"
+        sendEmail ${sendto} ${body}
+    fi    
 
     if [[ "$verbose" == "1" ]]; then result="$result\n$total destinations tested..."; fi;
    
