@@ -69,6 +69,7 @@ Sending of emails for unping-able destinations is enabled by adding the `--email
 You will need to configure environmental variables either in your CI/CD pipeline or your `~/.bashrc` depending on your use case. For example add these to the end of your `~/.bashrc` as follows:
 ```
 echo "export SMTP_SERVER=smtp.office365.com" >> ~/.bashrc
+source ~/.bashrc
 ```
 To Determine which environment variables to configure and to check if they are correct you mat use the `pingtest --settings` command and it should yield a result similar to the following:
 ```
