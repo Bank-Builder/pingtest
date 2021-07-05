@@ -64,7 +64,9 @@ and the because the -m (markdown) flag was used the output renders as:
 ```
 
 ## Sending notification emails
-Sending of emails for unping-able destinations is enabled by adding the `--email` argument with the email address to which to sent the failure notification, as follows: `pingtest -f pingtest.list --email me@domain.com -q` where the `-q` parameter is intended for using pingtest in a CI/CD pipeline.  Any failures in the pingtest.list would result in `$? == 1`. 
+Sending of emails when fnding an un-ping-able destination is enabled by adding the `--email` argument with the email address to which to sent the failure notification, as follows: `pingtest -f pingtest.list --email me@domain.com -q` where the `-q` parameter is intended for using pingtest in a CI/CD pipeline.  Any failures in the pingtest.list would result in `$? == 1`. 
+
+This will also work with a single server ping eg. `pingtest unreachable.domain.com --email me@domain.com`
 
 You will need to configure environmental variables either in your CI/CD pipeline or your `~/.bashrc` depending on your use case. For example add these to the end of your `~/.bashrc` as follows:
 ```
