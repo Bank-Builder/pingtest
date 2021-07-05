@@ -68,13 +68,14 @@ function ProgressBar {
     printf "\rProgress : [${_fill// /\#}${_empty// /-}] ${_progress}%%"
 }
 
-function sendEmail {
+function sendEmail(){
 # $1 ToAddress
-# $2 domainname of failed test
+# $2 body
 # Assumes environment variables
-toAddress=$1
-body=$2
-err=$(curl --max-time $SMTP_TIMEOUT --url 'smtp://'$SMTP_SERVER':'$SMTP_PORT --ssl-reqd   --mail-from $SMTP_FROM_EMAIL   --mail-rcpt $toAddress   --user $SMTP_USERNAME':'$SMTP_PASSWORD   -T <(echo -e 'From: '$SMTP_FROM_EMAIL'\nTo: '$toAddress'\nSubject: Pingtest Failure\n\n'$body) > /dev/null 2>&1 )
+toAddress="$1";
+body="${2}";
+echo "BODY  = "$body
+err=$(curl --max-time $SMTP_TIMEOUT --url 'smtp://'$SMTP_SERVER':'$SMTP_PORT --ssl-reqd   --mail-from $SMTP_FROM_EMAIL   --mail-rcpt $toAddress   --user $SMTP_USERNAME':'$SMTP_PASSWORD   -T <(echo -e 'From: '$SMTP_FROM_EMAIL'\nTo: '$toAddress'\nSubject: Pingtest Failure\n\n'${body} ) > /dev/null 2>&1 )
 if [[ err -ne 0 ]]; then
     echo "Sending email failed"
 fi
@@ -108,7 +109,7 @@ function pTestFile(){
     IPLIST="$1"
     verbose="$2"
     markdown="$3"
-    sendto="$4"
+    sendto=$_sendto
 
     IFS=$'\n'
     total=`cat $IPLIST | wc -l`
@@ -198,6 +199,11 @@ if [[ -n "$_pingserver" ]]; then
     result=$(pTest $_pingserver)
     if [[ "$_quiet" == "0" ]]; then echo -e $result;fi;
     if [[ "$result" == *"failed"* ]]; then
+        if [[ "$_sendto" != "NONE" ]]; then 
+            pingserver_body='-----------------------\n\nPing Test Failed to: '${_pingserver}'\n\nRegards,\nPingtest ver '${_version}'\n-----------------------\n';
+            echo 'BODY :'$_sendto} ${pingserver_body}
+            sendEmail "${_sendto}" "${pingserver_body}"
+        fi     
         exit 1;  # failed
     else
         exit 0;  # OK    
@@ -205,7 +211,7 @@ if [[ -n "$_pingserver" ]]; then
 fi;
 
 if [[ -n "$_pingfile" ]]; then 
-    pTestFile ${_pingfile} ${_verbose} ${_markdown} ${_sendto}
+    pTestFile ${_pingfile} ${_verbose} ${_markdown}
     if [[ "$_quiet" == "0" ]]; then echo -e $result; fi;
     if [[ "$result" == *"failed"* ]]; then 
         exit 1;  # failed
